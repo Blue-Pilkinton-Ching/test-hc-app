@@ -1,0 +1,18 @@
+manifest_version: '1'
+name: test-hc-app
+description: null
+roles:
+- name: test_hc_app
+  provisioning:
+    strategy: create
+    deferred: false
+  dna:
+    bundled: '../dnas/test_hc_app/workdir/test_hc_app.dna'
+    modifiers:
+      network_seed: null
+      properties: null
+      origin_time: null
+      quantum_time: null
+    installed_hash: null
+    clone_limit: 0
+allow_deferred_memproofs: false

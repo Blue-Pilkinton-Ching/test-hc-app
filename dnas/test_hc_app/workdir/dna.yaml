@@ -1,0 +1,21 @@
+manifest_version: '1'
+name: test_hc_app
+integrity:
+  network_seed: null
+  properties: null
+  origin_time: 1736427056933264
+  zomes:
+  - name: test_hc_app_integrity
+    hash: null
+    bundled: '../../../target/wasm32-unknown-unknown/release/test_hc_app_integrity.wasm'
+    dependencies: null
+    dylib: null
+coordinator:
+  zomes:
+  - name: test_hc_app
+    hash: null
+    bundled: '../../../target/wasm32-unknown-unknown/release/test_hc_app.wasm'
+    dependencies:
+    - name: test_hc_app_integrity
+    dylib: null
+lineage: []

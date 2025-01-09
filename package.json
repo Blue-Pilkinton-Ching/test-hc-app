@@ -1,0 +1,32 @@
+{
+  "name": "test-hc-app-dev",
+  "private": true,
+  "workspaces": [
+    "ui",
+    "tests"
+  ],
+  "scripts": {
+    "start": "AGENTS=${AGENTS:-2} BOOTSTRAP_PORT=$(get-port) SIGNAL_PORT=$(get-port) yarn network",
+    "network": "hc sandbox clean && yarn build:happ && UI_PORT=$(get-port) concurrently \"yarn workspace ui start\" \"yarn launch:happ\" \"holochain-playground\"",
+    "test": "yarn build:zomes && hc app pack workdir --recursive && yarn workspace tests test",
+    "launch:happ": "hc-spin -n $AGENTS --ui-port $UI_PORT workdir/test-hc-app.happ",
+    "start:tauri": "AGENTS=${AGENTS:-2} BOOTSTRAP_PORT=$(get-port) SIGNAL_PORT=$(get-port) yarn network:tauri",
+    "network:tauri": "hc sandbox clean && yarn build:happ && UI_PORT=$(get-port) concurrently \"yarn workspace ui start\" \"yarn launch:tauri\" \"holochain-playground\"",
+    "launch:tauri": "concurrently \"hc run-local-services --bootstrap-port $BOOTSTRAP_PORT --signal-port $SIGNAL_PORT\" \"echo pass | RUST_LOG=warn hc launch --piped -n $AGENTS workdir/test-hc-app.happ --ui-port $UI_PORT network --bootstrap http://127.0.0.1:\"$BOOTSTRAP_PORT\" webrtc ws://127.0.0.1:\"$SIGNAL_PORT\"\"",
+    "package": "yarn build:happ && yarn workspace ui package && hc web-app pack workdir --recursive",
+    "build:happ": "yarn build:zomes && hc app pack workdir --recursive",
+    "build:zomes": "cargo build --release --target wasm32-unknown-unknown"
+  },
+  "devDependencies": {
+    "@holochain-playground/cli": "^0.300.0-rc.0",
+    "@holochain/hc-spin": "^0.400.0",
+    "concurrently": "^6.5.1",
+    "get-port-cli": "^3.0.0"
+  },
+  "engines": {
+    "node": ">=16.0.0"
+  },
+  "hcScaffold": {
+    "template": "svelte"
+  }
+}
