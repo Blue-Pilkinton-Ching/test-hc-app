@@ -13,7 +13,7 @@ import type {
   Update,
 } from "@holochain/client";
 
-export type TestHcAppSignal = {
+export type TestDnaSignal = {
   type: "EntryCreated";
   action: SignedActionHashed<Create>;
   app_entry: EntryTypes;
@@ -38,9 +38,9 @@ export type TestHcAppSignal = {
 
 /* dprint-ignore-start */
 export type EntryTypes =
- | ({  type: 'TextEntry'; } & TextEntry);
+ | ({  type: 'TestEntry'; } & TestEntry);
 /* dprint-ignore-end */
 
-export interface TextEntry {
-  content: string;
+export interface TestEntry {
+  test_feild: string;
 }
