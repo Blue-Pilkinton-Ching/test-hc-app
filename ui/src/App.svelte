@@ -1,6 +1,10 @@
 <script lang="ts">
   import type { AppClient, HolochainError, Record } from '@holochain/client'
-  import { AppWebsocket } from '@holochain/client'
+  import {
+    AppWebsocket,
+    decodeHashFromBase64,
+    encodeHashToBase64,
+  } from '@holochain/client'
   import { onMount, setContext } from 'svelte'
 
   import { type ClientContext, clientContext } from './contexts'
@@ -42,16 +46,16 @@
     try {
       record = await client.callZome({
         cap_secret: null,
-        role_name: 'test_dna',
-        zome_name: 'test_dna',
-        fn_name: 'get_latest_test_entry',
-        payload: text,
+        role_name: 'test_hc_app',
+        zome_name: 'test_hc_app',
+        fn_name: 'get_original_text_entry',
+        payload: decodeHashFromBase64(text),
       })
-      if (record) {
-        testEntry = decode((record.entry as any).Present.entry) as TestEntry
-      }
+      testEntry = decode((record.entry as any).Present.entry) as TestEntry
+      console.log(testEntry)
+      console.log(record)
     } catch (e) {
-      error = e as HolochainError
+      alert((e as HolochainError).message)
     } finally {
       loading = false
     }
@@ -59,18 +63,24 @@
 
   async function createTestEntry() {
     let record: Record
+    loading = true
+
     try {
       record = await client.callZome({
         cap_secret: null,
-        role_name: 'test_dna',
-        zome_name: 'test_dna',
-        fn_name: 'create_test_entry',
+        role_name: 'test_hc_app',
+        zome_name: 'test_hc_app',
+        fn_name: 'create_text_entry',
         payload: {
-          test_feild: 'test',
+          content: 'test',
         },
       })
+
+      console.log(encodeHashToBase64(record.signed_action.hashed.hash))
     } catch (e) {
       alert((e as HolochainError).message)
+    } finally {
+      loading = false
     }
 
     return record
@@ -85,7 +95,9 @@
     await client.enableApp()
 
     if (text) {
+      fetchTestEntry()
     } else {
+      createTestEntry()
     }
   }
 </script>
@@ -95,7 +107,7 @@
     <p>Loading...</p>
   {:else}
     <p>Hash</p>
-    <input type="text" />
+    <input type="text" bind:value={text} />
     <button on:click={joinNetwork}>Join network</button>
   {/if}
 </main>
