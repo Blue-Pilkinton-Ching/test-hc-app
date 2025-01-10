@@ -107,9 +107,11 @@
       // If we call fetchTestEntry() directly after joining the network, I get an alert with the error:
       // "Cannot read properties of undefined (reading 'entry')" which bassically means the call
 
-      // If I uncomment this delay here, it works fine. In my production app, I'm retrieving 3+ records
+      // If I uncomment this delay here, it works fine.
+      // In my production app, I'm retrieving 10s of records right after the agent joins the network,
+      // and need to no how long I should wait.
 
-      // await new Promise((resolve) => setTimeout(resolve, 5000))
+      await new Promise((resolve) => setTimeout(resolve, 3000))
 
       fetchTestEntry()
     } else {
