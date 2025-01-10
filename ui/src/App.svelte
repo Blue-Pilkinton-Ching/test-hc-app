@@ -41,26 +41,6 @@
 
   setContext<ClientContext>(clientContext, appClientContext)
 
-  async function fetchTestEntry() {
-    loading = true
-    try {
-      record = await client.callZome({
-        cap_secret: null,
-        role_name: 'test_hc_app',
-        zome_name: 'test_hc_app',
-        fn_name: 'get_original_text_entry',
-        payload: decodeHashFromBase64(text),
-      })
-      testEntry = decode((record.entry as any).Present.entry) as TestEntry
-      console.log(testEntry)
-      console.log(record)
-    } catch (e) {
-      alert((e as HolochainError).message)
-    } finally {
-      loading = false
-    }
-  }
-
   async function createTestEntry() {
     let record: Record
     loading = true
@@ -86,6 +66,32 @@
     return record
   }
 
+  async function fetchTestEntry() {
+    loading = true
+    try {
+      record = await client.callZome({
+        cap_secret: null,
+        role_name: 'test_hc_app',
+        zome_name: 'test_hc_app',
+        fn_name: 'get_original_text_entry',
+        payload: decodeHashFromBase64(text),
+      })
+
+      if (record === null) {
+        // This executes unless I add a delay after joining the network
+        console.error('Record is null!')
+      }
+
+      testEntry = decode((record.entry as any).Present.entry) as TestEntry
+      console.log(testEntry)
+      console.log(record)
+    } catch (e) {
+      alert((e as HolochainError).message)
+    } finally {
+      loading = false
+    }
+  }
+
   async function joinNetwork() {
     if (!client) {
       return
@@ -94,7 +100,17 @@
 
     await client.enableApp()
 
+    await client.appInfo()
+
     if (text) {
+      // So here is the problem.
+      // If we call fetchTestEntry() directly after joining the network, I get an alert with the error:
+      // "Cannot read properties of undefined (reading 'entry')" which bassically means the call
+
+      // If I uncomment this delay here, it works fine. In my production app, I'm retrieving 3+ records
+
+      // await new Promise((resolve) => setTimeout(resolve, 5000))
+
       fetchTestEntry()
     } else {
       createTestEntry()
